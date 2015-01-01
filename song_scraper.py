@@ -1,18 +1,43 @@
 import mechanize as mech
 import pickle
+import re
 
-url = 'https://youtube.com'
+yUrl = 'https://youtube.com'
+mUrl = 'http://www.youtube-mp3.org/'
 
-br = mech.Browser()
-br.set_handle_robots(False)
+# browser for YouTube
+yBrowser = mech.Browser()
+yBrowser.set_handle_robots(False)
 
-response = br.open(url)
-print br.title()
+yResponse = yBrowser.open(yUrl)
+print 'Opening {0}...'.format(yBrowser.title())
 
-form = br.select_form(nr = 1)
-br['search_query'] = 'city and colour'
-br.submit()
+# browser for mp3 downloader
+mBrowser = mech.Browser()
+mBrowser.set_handle_robots(False)
 
-print br.title()
+mResponse = mBrowser.open(mUrl)
+print 'Opening {0}...'.format(mBrowser.title())
 
-artists = pickle.load(open('artists.p', 'rb'))
+
+yForm = yBrowser.select_form(nr = 1)
+yBrowser['search_query'] = 'city and colour'
+yBrowser.submit()
+
+print yBrowser.title()
+
+count = 0
+for link in yBrowser.links(url_regex='/watch\?v=[A-Za-z0-9]+'):
+	if count < 1:
+		address = re.search('/watch\?v=[A-Za-z0-9]+', str(link))
+		songUrl = 'https://www.youtube.com' + address.group(0)
+		print 'Url of video is {0}'.format(songUrl)
+		mForm = mBrowser.select_form(nr = 0)
+		mBrowser.set_value(songUrl, nr = 0)
+		mBrowser.submit()
+		count += 1
+	else:
+		break
+
+# artists = pickle.load(open('artists.p', 'rb'))
+

@@ -1,6 +1,6 @@
 import mechanize as mech
 import pickle
-import re
+import re, time
 
 yUrl = 'https://youtube.com'
 mUrl = 'http://www.youtube-mp3.org/'
@@ -32,9 +32,15 @@ for link in yBrowser.links(url_regex='/watch\?v=[A-Za-z0-9]+'):
 		address = re.search('/watch\?v=[A-Za-z0-9]+', str(link))
 		songUrl = 'https://www.youtube.com' + address.group(0)
 		print 'Url of video is {0}'.format(songUrl)
-		mForm = mBrowser.select_form(nr = 0)
+		mBrowser.select_form(nr = 0)
 		mBrowser.set_value(songUrl, nr = 0)
 		mBrowser.submit()
+
+		print mBrowser.form
+		# allow song to download
+		time.sleep(1)
+		downloadLink = list(mBrowser.links())
+		# print downloadLink
 		count += 1
 	else:
 		break
